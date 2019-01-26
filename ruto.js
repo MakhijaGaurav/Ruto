@@ -7,15 +7,25 @@ class block{//what my block consist of
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
+        this.nonce = 0;
     }
     calculateHash(){//calculates hash of the block by adding all the data
-        return SHA256(this.index+this.previousHash+this.timestamp+JSON.stringify(this.data)).toString();    
+        return SHA256(this.index+this.previousHash+this.nonce+this.timestamp+JSON.stringify(this.data)).toString();    
     }
+    mineBlock(difficulty){
+        while(this.hash.substring(0,difficulty)!==Array(difficulty+1).join("0")){
+            this.nonce++;
+             this.hash = this.calculateHash();
+        }
+        console.log("Block Mined "+this.hash);
+    }
+    
 }
 
 class blockChain{
     constructor(){
         this.chain = [this.createGenesisBlock()];//array of chains with first genenis block
+        this.difficulty = 4;
     }
     createGenesisBlock(){//first block of the chain with initial dummy data
         return new block(0,"22/12/2018","Genesis Block","");
@@ -27,7 +37,7 @@ class blockChain{
     
     addBlock(newBlock){//adds new block
         newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
+        newBlock.mineBlock(this.difficulty);
         this.chain.push(newBlock);
     }
     isChainValid(){//checks if chain is valid returns bool
@@ -48,10 +58,12 @@ class blockChain{
 }
 
 let Ruto = new blockChain();//name of the coin
+console.log("Minning Block 1");
 Ruto.addBlock(new block(1,"12/12/2018",100));//adding data to the chain
+console.log("Minning Block 2");
 Ruto.addBlock(new block(2,"18/12/2018",200));
-Ruto.isChainValid();
-Ruto.chain[1].data = 50;//changing data to verify
-Ruto.chain[1].hash = Ruto.chain[1].calculateHash();//calculating hash after change
-Ruto.isChainValid();
+//Ruto.isChainValid();
+//Ruto.chain[1].data = 50;//changing data to verify
+//Ruto.chain[1].hash = Ruto.chain[1].calculateHash();//calculating hash after change
+//Ruto.isChainValid();
 //console.log(JSON.stringify(Ruto," ",1));
